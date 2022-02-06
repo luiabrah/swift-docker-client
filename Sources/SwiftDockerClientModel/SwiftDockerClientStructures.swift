@@ -614,3 +614,17 @@ public struct HostConfig: Codable {
         case publishAllPorts = "PublishAllPorts"
     }
 }
+
+public struct DockerResponse: Codable {
+    public let message: String
+    
+    public init(message: String) {
+        self.message = message
+    }
+}
+
+public enum DockerAPIError: Error {
+    case serverError(String)
+    case resourceNotFound(String)
+    case invalidRequest(String)
+}

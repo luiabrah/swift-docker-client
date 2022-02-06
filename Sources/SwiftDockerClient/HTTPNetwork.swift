@@ -68,18 +68,24 @@ public class HTTPNetwork: HTTPNetworking {
     
     public func execute<E: Endpoint>(_ endpoint: E, onSocketPath socketPath: String) async throws -> E.Response {
         logger.info("Executing request on socket path \(socketPath) for endpoint \(endpoint)")
+        
         let request = try createRequest(for: endpoint, onSocketPath: socketPath)
         let httpResponse = try await httpClient.execute(request: request, logger: logger).get()
+        
+        logger.info("Received HTTP Response: \(httpResponse) with status: \(httpResponse.status.code) \(httpResponse.status.reasonPhrase)")
+        
         return try decodeResponse(httpResponse, forEndpoint: endpoint)
     }
     
     private func decodeResponse<E: Endpoint>(_ response: HTTPClient.Response, forEndpoint endpoint: E) throws -> E.Response {
+        // Check response status code
+        try response.checkStatusCode()
+        
         if E.Response.self == EmptyBody.self {
             return EmptyBody() as! E.Response
         }
         
-        guard let buffer = response.body,
-              let data = buffer.getData(at: buffer.readerIndex, length: buffer.readableBytes) else {
+        guard let data = response.bodyData() else {
             let errorMessage = "HTTP Response has an invalid body for endpoint: \(endpoint)"
             logger.error("\(errorMessage)")
             throw HTTPNetworkError.invalidResponseBody(errorMessage)
@@ -117,5 +123,43 @@ extension Data {
               let prettyPrintedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) else { return nil }
 
         return prettyPrintedString
+    }
+}
+
+extension HTTPClient.Response {
+    func checkStatusCode() throws {
+        if (200...299).contains(self.status.code) {
+            return
+        }
+        
+        // Not modified isn't an error state
+        if self.status.code == 304 {
+            return
+        }
+        
+        // Response is an error
+        var errorMessage = ""
+        if let reponseBody = self.bodyData(),
+           let dockerResponse = try? JSONDecoder().decode(DockerResponse.self, from: reponseBody) {
+            errorMessage = dockerResponse.message
+        }
+        
+        switch self.status.code {
+            case 400:
+                throw DockerAPIError.invalidRequest(errorMessage)
+            case 404:
+                throw DockerAPIError.resourceNotFound(errorMessage)
+            default:
+                throw DockerAPIError.serverError(errorMessage)
+        }
+    }
+    
+    func bodyData() -> Data? {
+        guard let buffer = self.body,
+              let data = buffer.getData(at: buffer.readerIndex, length: buffer.readableBytes) else {
+                  return nil
+              }
+        
+        return data
     }
 }

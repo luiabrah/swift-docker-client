@@ -29,14 +29,16 @@ struct Main {
             
             let createContainerResponse = try await dockerClient.createContainer(containerName: "FUN",
                                                                                  containerConfig: containerConfig)
+            logger.info("\(createContainerResponse)")
             
             // Start container
+            try await dockerClient.startContainer(containerId: createContainerResponse.id)
             try await dockerClient.startContainer(containerId: createContainerResponse.id)
             
             // Stop container
             try await dockerClient.stopContainer(containerId: createContainerResponse.id)
             
-            logger.info("\(createContainerResponse)")
+            
             let response = try await dockerClient.listContainers(all: true)
             logger.info("\(response)")
         } catch {
