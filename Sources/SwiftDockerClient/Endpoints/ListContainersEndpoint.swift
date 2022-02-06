@@ -9,14 +9,6 @@ import Foundation
 import NIOHTTP1
 import SwiftDockerClientModel
 
-public struct ListContainersResponse: Codable {
-    public let containers: Containers
-    
-    public init(containers: Containers) {
-        self.containers = containers
-    }
-}
-
 public struct ListContainersEndpoint: Endpoint {
 
     public typealias Request = EmptyBody

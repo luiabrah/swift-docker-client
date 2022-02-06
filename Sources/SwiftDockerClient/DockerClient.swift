@@ -12,6 +12,8 @@ import SwiftDockerClientModel
 
 public protocol DockerClientProtocol {
     func listContainers(all: Bool) async throws -> Containers
+    func createContainer(containerName: ContainerName, containerConfig: ContainerConfig) async throws -> CreateContainerResponse
+    func pullImage(imageName: ImageName) async throws
 }
 
 public class DockerClient: DockerClientProtocol {

@@ -7,42 +7,68 @@
 
 import Foundation
 
-public typealias ContainerId        = String
-public typealias ContainerName      = String
-public typealias ContainerNames     = [ContainerName]
-public typealias ContainerStatus    = String
-public typealias ContainerState     = String
-public typealias ImageName          = String
-public typealias ImageId            = String
-public typealias Command            = String
-public typealias CreatedDateMillis  = Int64
-public typealias IPAddress          = String
-public typealias IPAddresses        = [IPAddress]
-public typealias PrivatePort        = UInt16
-public typealias PublicPort         = UInt16
-public typealias Ports              = [Port]
-public typealias Containers         = [Container]
-public typealias Size               = Int64
-public typealias Labels             = [String: String]
-public typealias NetworkMode        = String
-public typealias ContainerPath      = String
-public typealias ReadOnly           = Bool
-public typealias MountSource        = String
-public typealias PermissionMode     = Int
-public typealias DriverName         = String
-public typealias DriverOptions      = [String: String]
-public typealias NoCopy             = Bool
-public typealias Mounts             = [Mount]
-public typealias NetworkId          = String
-public typealias EndpointId         = String
-public typealias MACAddress         = String
-public typealias MaskLength         = Int
-public typealias NetworkLink        = String
-public typealias NetworkLinks       = [NetworkLink]
-public typealias NetworkAlias       = String
-public typealias NetworkAliases     = [NetworkAlias]
-public typealias NetworkEndpoint    = String
-public typealias Networks           = [NetworkEndpoint: EndpointSettings]
+public typealias ContainerId = String
+public typealias ContainerName = String
+public typealias ContainerNames = [ContainerName]
+public typealias ContainerStatus = String
+public typealias ContainerState = String
+public typealias ImageName = String
+public typealias ImageId = String
+public typealias Command = String
+public typealias CreatedDateMillis = Int64
+public typealias IPAddress = String
+public typealias IPAddresses = [IPAddress]
+public typealias PrivatePort = UInt16
+public typealias PublicPort = UInt16
+public typealias Ports = [Port]
+public typealias Containers = [Container]
+public typealias Size = Int64
+public typealias Labels = [String: String]
+public typealias NetworkMode = String
+public typealias ContainerPath = String
+public typealias ReadOnly = Bool
+public typealias MountSource = String
+public typealias PermissionMode = Int
+public typealias DriverName = String
+public typealias DriverOptions = [String: String]
+public typealias NoCopy = Bool
+public typealias Mounts = [Mount]
+public typealias NetworkId = String
+public typealias EndpointId = String
+public typealias MACAddress = String
+public typealias MaskLength = Int
+public typealias NetworkLink = String
+public typealias NetworkLinks = [NetworkLink]
+public typealias NetworkAlias = String
+public typealias NetworkAliases = [NetworkAlias]
+public typealias NetworkEndpoint = String
+public typealias Networks = [NetworkEndpoint: EndpointSettings]
+public typealias EndpointsConfig = [String: EndpointSettings]
+public typealias Volumes = [String: Empty]
+public typealias PortSet = [PortType: Empty]
+public typealias Memory = Int64
+public typealias ContainerHostname = String
+public typealias DomainName = String
+public typealias User = String
+public typealias Commands = [Command]
+public typealias Environment = [String]
+public typealias ContainerWorkingDirectory = String
+public typealias Entrypoint = [String]
+public typealias Signal = String
+public typealias Seconds = Int
+public typealias Nanoseconds = Int
+public typealias HealthCheckTest = String
+public typealias HealthCheckTests = [HealthCheckTest]
+public typealias Architecture = String
+public typealias OS = String
+public typealias OSVersion = String
+public typealias OSFeature = String
+public typealias OSFeatures = [OSFeature]
+public typealias Variant = String
+
+public struct Empty: Codable {
+    
+}
 
 public enum MountType: String, Codable {
     case bind
@@ -175,18 +201,6 @@ public struct Mount: Codable {
     }
 }
 
-public struct HostConfig: Codable {
-    public let networkMode: NetworkMode
-    
-    public init(networkMode: NetworkMode) {
-        self.networkMode = networkMode
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case networkMode = "NetworkMode"
-    }
-}
-
 public struct Port: Codable {
     public let ipAddress:   IPAddress?
     public let privatePort: PrivatePort
@@ -309,6 +323,18 @@ public struct NetworkSettings: Codable {
 }
 
 public struct Container: Codable {
+    public struct HostConfig: Codable {
+        public let networkMode: NetworkMode?
+        
+        public init(networkMode: NetworkMode?) {
+            self.networkMode = networkMode
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case networkMode = "NetworkMode"
+        }
+    }
+    
     public let id:              ContainerId
     public let names:           ContainerNames
     public let image:           ImageName
@@ -373,5 +399,217 @@ public struct Container: Codable {
         case hostConfig = "HostConfig"
         case mounts = "Mounts"
         case networkSettings = "NetworkSettings"
+    }
+}
+
+public struct NetworkingConfig: Codable {
+
+    public let endpointsConfig: EndpointsConfig
+    
+    public init(endpointsConfig: EndpointsConfig) {
+        self.endpointsConfig = endpointsConfig
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case endpointsConfig = "EndpointsConfig"
+    }
+}
+
+public struct HealthCheck: Codable {
+    public let tests: HealthCheckTests?
+    public let interval: Nanoseconds?
+    public let timeout: Nanoseconds?
+    public let retries: Int?
+    public let startPeriod: Nanoseconds?
+    
+    public init(tests: HealthCheckTests?,
+                interval: Nanoseconds?,
+                timeout: Nanoseconds?,
+                retries: Int?, startPeriod: Nanoseconds?) {
+        self.tests = tests
+        self.interval = interval
+        self.timeout = timeout
+        self.retries = retries
+        self.startPeriod = startPeriod
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case tests = "Test"
+        case interval = "Interval"
+        case timeout = "Timeout"
+        case retries = "Retries"
+        case startPeriod = "StartPeriod"
+    }
+}
+
+public struct Platform: Codable {
+    public let architecture: Architecture
+    public let os: OS
+    public let osVersion: OSVersion?
+    public let osFeatures: OSFeatures?
+    public let variant: Variant?
+}
+
+public struct ContainerConfig: Codable {
+    public let hostname: ContainerHostname
+    public let domainName: DomainName
+    public let user: User
+    public let attachStdin: Bool
+    public let attachStdout: Bool
+    public let attachStderr: Bool
+    public let tty: Bool
+    public let commands: Commands
+    public let environment: Environment
+    public let image: ImageName
+    public let openStdin: Bool
+    public let stdinOnce: Bool
+    public let argsEscaped: Bool?
+    public let workingDirectory: ContainerWorkingDirectory
+    public let entrypoint: Entrypoint
+    public let networkDisabled: Bool
+    public let macAddress: MACAddress?
+    public let labels: Labels
+    public let stopSignal: Signal?
+    public let stopTimeout: Seconds?
+    public let shell: [String]?
+    public let onBuild: [String]
+    public let volumes: Volumes
+    public let healthCheck: HealthCheck?
+    public let exposedPorts: PortSet?
+    public let networkingConfig: NetworkingConfig?
+    public let hostConfig: HostConfig
+    
+    public init(hostname: ContainerHostname = "",
+                domainName: DomainName = "",
+                user: User = "",
+                attachStdin: Bool = false,
+                attachStdout: Bool = true,
+                attachStderr: Bool = true,
+                tty: Bool = false,
+                commands: Commands,
+                environment: Environment,
+                image: ImageName,
+                openStdin: Bool = false,
+                stdinOnce: Bool = false,
+                argsEscaped: Bool? = nil,
+                workingDirectory: ContainerWorkingDirectory = "",
+                entrypoint: Entrypoint = [],
+                networkDisabled: Bool = false,
+                macAddress: MACAddress? = nil,
+                labels: Labels = [:],
+                stopSignal: Signal? = nil,
+                stopTimeout: Seconds? = nil,
+                shell: [String]? = nil,
+                onBuild: [String] = [],
+                networkingConfig: NetworkingConfig? = nil,
+                volumes: Volumes = [:],
+                healthCheck: HealthCheck? = nil,
+                exposedPorts: PortSet? = nil,
+                hostConfig: HostConfig) {
+        self.hostname = hostname
+        self.domainName = domainName
+        self.user = user
+        self.attachStdin = attachStdin
+        self.attachStdout = attachStdout
+        self.attachStderr = attachStderr
+        self.tty = tty
+        self.commands = commands
+        self.environment = environment
+        self.image = image
+        self.openStdin = openStdin
+        self.stdinOnce = stdinOnce
+        self.argsEscaped = argsEscaped
+        self.workingDirectory = workingDirectory
+        self.entrypoint = entrypoint
+        self.networkDisabled = networkDisabled
+        self.macAddress = macAddress
+        self.labels = labels
+        self.stopSignal = stopSignal
+        self.stopTimeout = stopTimeout
+        self.shell = shell
+        self.onBuild = onBuild
+        self.networkingConfig = networkingConfig
+        self.volumes = volumes
+        self.healthCheck = healthCheck
+        self.exposedPorts = exposedPorts
+        self.hostConfig = hostConfig
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case hostname = "Hostname"
+        case domainName = "Domainname"
+        case user = "User"
+        case attachStdin = "AttachStdin"
+        case attachStdout = "AttachStdout"
+        case attachStderr = "AttachStderr"
+        case tty = "Tty"
+        case commands = "Cmd"
+        case environment = "Env"
+        case image = "Image"
+        case openStdin = "OpenStdin"
+        case stdinOnce = "StdinOnce"
+        case argsEscaped = "ArgsEscaped"
+        case workingDirectory = "WorkingDir"
+        case entrypoint = "Entrypoint"
+        case networkDisabled = "NetworkDisabled"
+        case macAddress = "MacAddress"
+        case labels = "Labels"
+        case stopSignal = "StopSignal"
+        case stopTimeout = "StopTimeout"
+        case shell = "Shell"
+        case onBuild = "OnBuild"
+        case networkingConfig = "NetworkingConfig"
+        case volumes = "Volumes"
+        case healthCheck = "HealthCheck"
+        case exposedPorts = "ExposedPorts"
+        case hostConfig = "HostConfig"
+    }
+}
+
+public enum RestartPolicy: String, Codable {
+    case none = ""
+    case always = "always"
+    case unlessStopped = "unless-stopped"
+    case onFailure = "on-failure"
+}
+
+public struct RestartPolicyConfig: Codable {
+   
+    public let name: RestartPolicy
+    public let maximumRetryCount: Int
+    
+    public init(name: RestartPolicy, maximumRetryCount: Int) {
+        self.name = name
+        self.maximumRetryCount = maximumRetryCount
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case name = "Name"
+        case maximumRetryCount = "MaximumRetryCount"
+    }
+}
+
+public struct HostConfig: Codable {
+
+    public let memory: Memory
+    public let restartPolicy: RestartPolicyConfig
+    public let mounts: Mounts?
+    public let publishAllPorts: Bool
+    
+    public init(memory: Memory,
+                restartPolicy: RestartPolicyConfig,
+                mounts: Mounts? = nil,
+                publishAllPorts: Bool = true) {
+        self.memory = memory
+        self.restartPolicy = restartPolicy
+        self.mounts = mounts
+        self.publishAllPorts = publishAllPorts
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case memory = "Memory"
+        case restartPolicy = "RestartPolicy"
+        case mounts = "Mounts"
+        case publishAllPorts = "PublishAllPorts"
     }
 }

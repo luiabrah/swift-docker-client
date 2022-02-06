@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftDockerClient
+import SwiftDockerClientModel
 import Logging
 
 @main
@@ -16,6 +17,18 @@ struct Main {
         let dockerClient = DockerClient(logger: logger)
         
         do {
+            
+            try await dockerClient.pullImage(imageName: "alpine:latest")
+            let hostConfig = HostConfig(memory: 0, restartPolicy: .init(name: .none, maximumRetryCount: 0))
+            let containerConfig = ContainerConfig(commands: ["echo", "hello!"],
+                                                  environment: [],
+                                                  image: "alpine:latest",
+                                                  hostConfig: hostConfig)
+            
+            let createContainerResponse = try await dockerClient.createContainer(containerName: "FUN",
+                                                                                 containerConfig: containerConfig)
+            
+            logger.info("\(createContainerResponse)")
             let response = try await dockerClient.listContainers(all: true)
             logger.info("\(response)")
         } catch {
