@@ -12,7 +12,17 @@ import SwiftDockerClientModel
 
 public protocol DockerClientProtocol {
     func listContainers(all: Bool) async throws -> Containers
+    
     func createContainer(containerName: ContainerName, containerConfig: ContainerConfig) async throws -> CreateContainerResponse
+    
+    func startContainer(containerId: ContainerId) async throws
+    
+    func startContainer(containerId: ContainerId, detachKeys: DetachKeys?) async throws
+    
+    func stopContainer(containerId: ContainerId) async throws
+    
+    func stopContainer(containerId: ContainerId, killWaitTime: Seconds?) async throws
+    
     func pullImage(imageName: ImageName) async throws
 }
 

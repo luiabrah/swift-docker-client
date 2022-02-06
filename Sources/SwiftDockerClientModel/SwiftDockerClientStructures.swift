@@ -65,6 +65,7 @@ public typealias OSVersion = String
 public typealias OSFeature = String
 public typealias OSFeatures = [OSFeature]
 public typealias Variant = String
+public typealias DetachKeys = String
 
 public struct Empty: Codable {
     

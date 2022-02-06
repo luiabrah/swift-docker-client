@@ -18,7 +18,9 @@ struct Main {
         
         do {
             
+            // Pull image
             try await dockerClient.pullImage(imageName: "alpine:latest")
+            // Setup container
             let hostConfig = HostConfig(memory: 0, restartPolicy: .init(name: .none, maximumRetryCount: 0))
             let containerConfig = ContainerConfig(commands: ["echo", "hello!"],
                                                   environment: [],
@@ -27,6 +29,12 @@ struct Main {
             
             let createContainerResponse = try await dockerClient.createContainer(containerName: "FUN",
                                                                                  containerConfig: containerConfig)
+            
+            // Start container
+            try await dockerClient.startContainer(containerId: createContainerResponse.id)
+            
+            // Stop container
+            try await dockerClient.stopContainer(containerId: createContainerResponse.id)
             
             logger.info("\(createContainerResponse)")
             let response = try await dockerClient.listContainers(all: true)
